@@ -7,8 +7,12 @@ on:
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest #El job se ejecutara en una maquina ubuntu con la version mas reciente
     steps:
+      # es esencial para permitir que las acciones subsiguientes en el flujo de trabajo interactúen con los servicios de AWS de manera segura.
+      # por lo que si este paso no se ejecuta o falla, las acciones subsiguientes que dependan de las credenciales de AWS también fallarán,
+      # Cualquier acción subsiguiente que intente interactuar con servicios de AWS, como subir archivos a S3, desplegar recursos en EC2, etc.,
+      # probablemente fallará debido a la falta de credenciales.
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@v1
       with:
@@ -33,6 +37,7 @@ jobs:
     - name: Build
       run: npm run build:prod
 
+      #Este paso solo se ejecutará si todos los pasos anteriores fueron exitosos (if: success()).
     - name: Deploy
       if: success()
-      run: aws s3 sync ./dist/angular-aws-gh s3://aws-gh-angular
+      run: aws s3 sync ./dist/angular-aws-gh s3://aws-gh-angular #Utiliza el comando aws s3 sync para sincronizar el contenido construido en el directorio con el nombre del bucket S3
